@@ -207,8 +207,29 @@ module Poker
 
     module Badugi
       def detect(cards)
+        raise ArgumentError('4 cards allowed for badugi') unless cards.size == 4
         hand = Hand.new(cards)
-        detect_badugi(hand, [:four?, :three?, :two?, :one?])
+        detect_badugi(hand, [:one?, :four?, :two?, :three?])
+      end
+
+      def four?(hand)
+        return false unless hand.kinds.size == 4 || hand.suits.size == 4
+        hand.tap { |h|
+          h.rank = :badugi4
+        } 
+      end
+
+      def three?(hand)
+      end
+
+      def two?(hand)
+      end
+
+      def one?(hand)
+        return false unless hand.kinds.size == 1 || hand.suits.size == 1
+        hand.tap { |h|
+          h.rank = :badugi1
+        }
       end
 
       def detect_badugi(hand, ranks)
