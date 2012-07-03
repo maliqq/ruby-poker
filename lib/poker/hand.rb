@@ -22,18 +22,20 @@ module Poker
       gaps = []
       gap = []
       prev = nil
-      @cards.sort.reverse.each_with_index { |card, i|
+      aces = @cards.select { |a| a.kind == "A" }
+      (@cards.sort.reverse + aces).each_with_index { |card, i|
         if i == 0
           gap << card
           prev = card
           next
         end
-        if card.index == prev.index
-        elsif (card.index - prev.index).abs > 1
-          gaps << gap
-          gap = []
-        else
+        if prev.index == card.index
+          #gap << card
+        elsif prev.index - card.index < 2 || card.index - prev.index == 12
           gap << card
+        else
+          gaps << gap
+          gap = [card]
         end
         prev = card
       }
@@ -156,10 +158,10 @@ module Poker
           return false if sets.empty? || (sets.size == 1 && pairs.empty?)
 
           if sets.size >= 2
-            major, minor, *_ = sets.sort_by { |a, b| b.max <=> a.max }
+            major, minor, *_ = sets.sort_by(&:max).reverse
           else
             major = sets.first
-            minor = pairs.size == 1 ? pairs.first : pairs.sort_by { |a, b| b.max <=> a.max }.first
+            minor = pairs.sort_by(&:max).last
           end
 
           hand.tap { |h|
@@ -172,9 +174,9 @@ module Poker
         def two_pair?(hand)
           pairs = hand.repeats(2)
 
-          return false unless pairs.size < 2
+          return false if pairs.size < 2
 
-          major, minor, *_ = pairs.sort_by { |a, b| b.max <=> a.max }
+          major, minor, *_ = pairs.sort_by(&:max).reverse
           hand.tap { |h|
             h.rank = :two_pair
             h.value = major + minor

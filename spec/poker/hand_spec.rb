@@ -17,6 +17,18 @@ describe Hand do
       Hand::High['AhAdAcKhKd'].should > Hand::High['KhKdKcQhQd']
     end
 
+    example 'flash' do
+      Hand::High['AdKdJdTd9d7d'].should == Hand::High['AsKsJsTs9s7s']
+    end
+
+    example 'wheel straight' do
+      Hand::High['Ad2c3d4d5d'].rank.should == :straight
+      Hand::High['Ad2d3d4d5d'].rank.should == :straight_flush
+    end
+
+    example 'three kind' do
+    end
+
     example 'two pair' do
       Hand::High['AhAdKhKd7d'].should > Hand::High['AhAdQhQd7d']
     end
