@@ -2,6 +2,7 @@
 
 module Poker
   class Card
+    include Comparable
     attr_reader :kind, :suit
     
     SUITS = %w(s c h d)

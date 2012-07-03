@@ -1,5 +1,7 @@
 module Poker
   class Hand
+    include Comparable
+
     attr_reader :cards, :kinds, :suits
     attr_accessor :rank, :high, :value
     
@@ -13,7 +15,7 @@ module Poker
     end
 
     def repeats(n)
-      @kinds.select { |kind, g| g.size == n }
+      @kinds.values.select { |g| g.size == n }
     end
 
     def gaps
@@ -48,17 +50,28 @@ module Poker
     end
     
     def index
-      RANKS.index(@rank)
+      RANKS.index(@rank.to_s)
+    end
+
+    def ==(b)
+      self.index == b.index && self.value == b.value
     end
 
     def <=>(b)
       return self.index <=> b.index unless self.index == b.index
+      
       self.high.each_with_index { |h, i|
         return h <=> b.high[i] unless h == b.high[i]
       } if self.high
+      
       self.kickers.each_with_index { |k, i|
         return k <=> b.kickers[i] unless k == b.kickers[i]
       } if self.value == b.value
+
+      self.value.each_with_index { |v, i|
+        return v <=> b.value[i] unless v == b.value[i]
+      }
+      
       return 0
     end
 
@@ -99,7 +112,7 @@ module Poker
         end
 
         def flush?(hand)
-          suited = hand.suits.select { |suit, g| g.size >= 5 }
+          suited = hand.suits.values.select { |g| g.size >= 5 }
           return false unless suited.size == 1
           hand.tap { |h|
             h.rank = :flush
@@ -146,7 +159,7 @@ module Poker
             major, minor, *_ = sets.sort_by { |a, b| b.max <=> a.max }
           else
             major = sets.first
-            minor = pairs.sort_by { |a, b| b.max <=> a.max }.first
+            minor = pairs.size == 1 ? pairs.first : pairs.sort_by { |a, b| b.max <=> a.max }.first
           end
 
           hand.tap { |h|
@@ -178,15 +191,13 @@ module Poker
           hand.tap { |h|
             h.rank = :one_pair
             h.value = pair
-            h.high = [pair.first]
           }
         end
 
         def high_card?(hand)
           hand.tap { |h|
             h.rank = :high_card
-            h.value = h.cards.max
-            h.high = [h.cards.max]
+            h.value = [h.cards.max]
           }
         end
       end
