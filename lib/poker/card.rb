@@ -49,6 +49,8 @@ module Poker
       KINDS.index(@kind)
     end
     
+    #CHARS =  %w(♠ ♥ ♦ ♣)
+    
     def to_s
       "#{@kind}#{@suit}"
     end
@@ -57,12 +59,16 @@ module Poker
       @kind == b.kind
     end
     
-    def <=>(a, b)
-      KINDS.index(a.kind) <=> KINDS.index(b.kind)
+    def ===(b)
+      self == b && @suit == b.suit
+    end
+    
+    def <=> (b)
+      self.index <=> b.index
     end
     
     def to_i
-      KINDS.index(@kind) << 2 + SUITS.index(@suit)
+      self.index << 2 + SUITS.index(@suit)
     end
   end
 end

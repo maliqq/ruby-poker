@@ -1,172 +1,211 @@
-class Hand
-  attr_reader :cards, :kinds, :suits
-  attr_accessor :rank, :high, :value, :kickers
+module Poker
+  class Hand
+    attr_reader :cards, :kinds, :suits
+    attr_accessor :rank, :high, :value
+    
+    RANKS = %w(high_card one_pair two_pair three_kind straight flush full_house four_kind straight_flush)
 
-  def initialize(cards)
-    @cards = cards
-    @kinds = @cards.group_by(&:kind)
-    @suits = @cards.group_by(&:suit)
-  end
-
-  def repeats(n)
-    @kinds.select { |g| g.size == n }
-  end
-
-  def gaps
-    @cards.sort.group_by { |a, b| (a.index - b.index).abs == 1 }
-  end
-
-  def kick(n)
-    (@cards - @value).sort.slice(0, n)
-  end
-
-  def ==(b)
-  end
-
-  def <=>(b)
-  end
-
-  module High
-    def detect(cards)
-      hand = Hand.new(cards)
-      detect_high(hand, [:straight_flush?, :three_kind?, :two_pair?, :one_pair?, :high_card?])
+    def initialize(cards)
+      @cards = cards
+      @kinds = @cards.group_by(&:kind)
+      @suits = @cards.group_by(&:suit)
+      @high = @value = @rank = @kickers = nil
     end
 
-    def detect_high(hand, ranks)
-      result = false
-      ranks.each { |rank|
-        result = send(rank, hand)
-        break if result
-      }
-      return result
+    def repeats(n)
+      @kinds.select { |kind, g| g.size == n }
     end
 
-    def straight_flush?(hand)
-      flush = flush?(hand)
-      if flush
-        straight = straight?(flush)
-        if straight
-          straight.tap { |h|
-            h.rank = :straight_flush
-          }
-        else
-          detect_high(hand, [:four_kind?, :full_house?]) || flush
+    def gaps
+      gaps = []
+      gap = []
+      prev = nil
+      @cards.sort.reverse.each_with_index { |card, i|
+        if i == 0
+          gap << card
+          prev = card
+          next
         end
-      else
-        detect_high(hand, [:four_kind?, :full_house?, :straight?])
+        if card.index == prev.index
+        elsif (card.index - prev.index).abs > 1
+          gaps << gap
+          gap = []
+        else
+          gap << card
+        end
+        prev = card
+      }
+      gaps << gap
+      gaps
+    end
+
+    def kickers
+      @kickers ||= (@cards - @value).sort.reverse.slice(0, 5 - @value.size)
+    end
+
+    def ==(b)
+      @rank == b.rank && @value == b.value && @kickers == b.kickers
+    end
+    
+    def index
+      RANKS.index(@rank)
+    end
+
+    def <=>(b)
+      return self.index <=> b.index unless self.index == b.index
+      self.high.each_with_index { |h, i|
+        return h <=> b.high[i] unless h == b.high[i]
+      } if self.high
+      self.kickers.each_with_index { |k, i|
+        return k <=> b.kickers[i] unless k == b.kickers[i]
+      } if self.value == b.value
+      return 0
+    end
+
+    module High
+      class << self
+        def detect(cards)
+          hand = Hand.new(cards)
+          detect_high(hand, [:straight_flush?, :three_kind?, :two_pair?, :one_pair?, :high_card?])
+        end
+
+        def [](cards)
+          detect(Card[cards])
+        end
+
+        def detect_high(hand, ranks)
+          result = false
+          ranks.each { |rank|
+            result = send(rank, hand)
+            break if result
+          }
+          return result
+        end
+
+        def straight_flush?(hand)
+          flush = flush?(hand)
+          if flush
+            straight = straight?(flush)
+            if straight
+              straight.tap { |h|
+                h.rank = :straight_flush
+              }
+            else
+              detect_high(hand, [:four_kind?, :full_house?]) || flush
+            end
+          else
+            detect_high(hand, [:four_kind?, :full_house?, :straight?])
+          end
+        end
+
+        def flush?(hand)
+          suited = hand.suits.select { |suit, g| g.size >= 5 }
+          return false unless suited.size == 1
+          hand.tap { |h|
+            h.rank = :flush
+            h.value = suited.sort.reverse.slice(0, 5)
+          }
+        end
+
+        def straight?(hand)
+          gaps = hand.gaps.select { |g| g.size >= 5 }
+          return false unless gaps.size == 1
+          row = gaps.first
+          hand.tap { |h|
+            h.rank = :straight
+            h.value = row.sort.reverse.slice(0, 5)
+            h.high = row.max
+          }
+        end
+
+        def four_kind?(hand)
+          quads = hand.repeats(4)
+          return false unless quads.size == 1
+          hand.tap { |h|
+            h.rank = :four_kind
+            h.value = quads.first
+          }
+        end
+
+        def three_kind?(hand)
+          sets = hand.repeats(3)
+          return false unless sets.size == 1
+          hand.tap { |h|
+            h.rank = :three_kind
+            h.value = sets.first
+          }
+        end
+
+        def full_house?(hand)
+          sets = hand.repeats(3)
+          pairs = hand.repeats(2)
+
+          return false if sets.empty? || (sets.size == 1 && pairs.empty?)
+
+          if sets.size >= 2
+            major, minor, *_ = sets.sort_by { |a, b| b.max <=> a.max }
+          else
+            major = sets.first
+            minor = pairs.sort_by { |a, b| b.max <=> a.max }.first
+          end
+
+          hand.tap { |h|
+            h.rank = :full_house
+            h.value = major + minor
+            h.high = [major.max, minor.max]
+          }
+        end
+
+        def two_pair?(hand)
+          pairs = hand.repeats(2)
+
+          return false unless pairs.size < 2
+
+          major, minor, *_ = pairs.sort_by { |a, b| b.max <=> a.max }
+          hand.tap { |h|
+            h.rank = :two_pair
+            h.value = major + minor
+            h.high = [major.max, minor.max]
+          }
+        end
+
+        def one_pair?(hand)
+          pairs = hand.repeats(2)
+
+          return false unless pairs.size == 1
+
+          pair = pairs.first
+          hand.tap { |h|
+            h.rank = :one_pair
+            h.value = pair
+            h.high = [pair.first]
+          }
+        end
+
+        def high_card?(hand)
+          hand.tap { |h|
+            h.rank = :high_card
+            h.value = h.cards.max
+            h.high = [h.cards.max]
+          }
+        end
       end
     end
 
-    def flush?(hand)
-      suited = hand.suits.select { |g| g.size >= 5 }
-      return false unless suited.size == 1
-      hand.tap { |h|
-        h.rank = :flush
-        h.value = suited.sort.slice(0, 5)
-        h.high = suited.max
-      }
-    end
-
-    def straight?
-      gaps = hand.gaps.select { |g| g.size >= 5 }
-      return false unless gaps.size == 1
-      row = gaps.first
-      hand.tap { |h|
-        h.rank = :straight
-        h.value = row.sort.slice(0, 5)
-        h.high = row.max
-      }
-    end
-
-    def four_kind?
-      quads = hand.repeats(4)
-      return false unless quads.size == 1
-      hand.tap { |h|
-        h.rank = :four_kind
-        h.value = quads.first
-        h.kickers = h.kick(1)
-      }
-    end
-
-    def three_kind?
-      sets = hand.repeats(3)
-      return false unless sets.size == 1
-      hand.tap { |h|
-        h.rank = :three_kind
-        h.value = sets.first
-        h.kickers = h.kick(2)
-      }
-    end
-
-    def full_house?(hand)
-      sets = hand.repeats(3)
-      pairs = hand.repeats(2)
-
-      return false if sets.empty? || (sets.size == 1 && pairs.empty?)
-
-      if sets.size >= 2
-        major, minor, *_ = sets.sort_by { |a, b| a.max <=> b.max }
-      else
-        major = sets.first
-        minor = pairs.sort_by { |a, b| a.max <=> b.max }
+    module Badugi
+      def detect(cards)
+        hand = Hand.new(cards)
+        detect_badugi(hand, [:four?, :three?, :two?, :one?])
       end
 
-      hand.tap { |h|
-        h.rank = :full_house
-        h.value = major + minor
-        h.high = [major.max, minor.max]
-      }
-    end
-
-    def two_pair?(hand)
-      pairs = hand.repeats(2)
-
-      return false unless pairs.size < 2
-
-      major, minor, *_ = pairs.sort_by { |a, b| a.max <=> b.max }
-      hand.tap { |h|
-        h.rank = :two_pair
-        h.value = major + minor
-        h.high = [major.max, minor.max]
-        h.kickers = h.kick(1)
-      }
-    end
-
-    def one_pair?(hand)
-      pairs = hand.repeats(2)
-
-      return false unless pairs.size == 1
-
-      pair = pairs.first
-      hand.tap { |h|
-        h.rank = :one_pair
-        h.value = pair
-        h.kickers = h.kick(3)
-      }
-    end
-
-    def high_card?(hand)
-      hand.tap { |h|
-        h.rank = :high_card
-        h.value = h.cards.max
-        h.kickers = h.kick(4)
-      }
-    end
-  end
-
-  module Badugi
-    def detect(cards)
-      hand = Hand.new(cards)
-      detect_badugi(hand, [:four?, :three?, :two?, :one?])
-    end
-
-    def detect_badugi(hand, ranks)
-      result = false
-      ranks.each { |rank|
-        result = send(rank)
-        break if result
-      }
-      return result
+      def detect_badugi(hand, ranks)
+        result = false
+        ranks.each { |rank|
+          result = send(rank)
+          break if result
+        }
+        return result
+      end
     end
   end
 end

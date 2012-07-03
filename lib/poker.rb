@@ -1,4 +1,4 @@
-require 'active_support/all'
+require 'active_support/core_ext'
 
 module Poker
   autoload :Card, 'poker/card'
