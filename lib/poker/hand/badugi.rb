@@ -67,12 +67,12 @@ module Poker
         elsif flush = hand.suited.first
           a = flush.min
           other = hand.cards - flush
-          b = other.select { |card| card.suit != a.suit && card.kind != a.kind }.first
+          b = other.select { |card| card.suit != a.suit && card.kind != a.kind }.min
         else
           pair = hand.paired.first
           other = hand.cards - pair
           a = pair.first
-          b = other.select { |card| card.kind != a.kind }.first
+          b = other.select { |card| card.kind != a.kind }.min
         end
         hand.tap { |h|
           h.rank = :two_card
