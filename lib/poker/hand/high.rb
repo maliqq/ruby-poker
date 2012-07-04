@@ -4,7 +4,7 @@ module Poker
       RANKS = %w(high_card one_pair two_pair three_kind straight flush full_house four_kind straight_flush)
 
       def <=>(b)
-        return b.index <=> self.index unless self.index == b.index
+        return self.index <=> b.index unless self.index == b.index
         
         self.high.each_with_index { |h, i|
           return h <=> b.high[i] unless h == b.high[i]
