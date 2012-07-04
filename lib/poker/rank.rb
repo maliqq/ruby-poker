@@ -20,16 +20,11 @@ module Poker
       @hands
     end
 
-    def sorted
-      @sorted ||= self.sort.reverse
-    end
-
     def winners
-      sorted.take_while { |hand| hand == sorted.first }
-    end
-
-    def loosers
-      self - winners
+      @winners ||= begin
+        sorted = self.sort.reverse
+        sorted.take_while { |hand| hand == sorted.first }
+      end
     end
   end
 end
