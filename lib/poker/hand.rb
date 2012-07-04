@@ -4,9 +4,8 @@ module Poker
 
     attr_reader :cards, :kinds, :suits
     attr_accessor :rank, :high, :value, :kickers
+    attr_accessor :ranks
     
-    RANKS = %w(high_card one_pair two_pair three_kind straight flush full_house four_kind straight_flush)
-
     def initialize(cards)
       @cards = cards
       @kinds = @cards.group_by(&:kind)
@@ -58,7 +57,7 @@ module Poker
     end
     
     def index
-      RANKS.index(@rank.to_s)
+      ranks.index(@rank.to_s)
     end
 
     def ==(b)
@@ -85,9 +84,12 @@ module Poker
     
     module High
       class << self
+        RANKS = %w(high_card one_pair two_pair three_kind straight flush full_house four_kind straight_flush)
+        
         def detect(cards)
           raise ArgumentError.new('7 or less cards allowed for high') unless cards.size <= 7
           hand = Hand.new(cards)
+          hand.ranks = RANKS
           detect_high(hand, [:straight_flush?, :three_kind?, :two_pair?, :one_pair?, :high_card?])
         end
 
@@ -214,9 +216,12 @@ module Poker
 
     module Badugi
       class << self
+        RANKS = %w(four_card three_card two_card one_card)
+        
         def detect(cards)
           raise ArgumentError.new('exactly 4 cards allowed for badugi') unless cards.size == 4
           hand = Hand.new(cards)
+          hand.ranks = RANKS
           detect_badugi(hand, [:one?, :four?, :three?, :two?])
         end
 
@@ -236,7 +241,7 @@ module Poker
         def four?(hand)
           return false unless hand.kinds.size == 4 && hand.suits.size == 4
           hand.tap { |h|
-            h.rank = :badugi4
+            h.rank = :four_card
             h.value = hand.cards.sort
           }
         end
@@ -260,7 +265,7 @@ module Poker
             return false
           end
           hand.tap { |h|
-            h.rank = :badugi3
+            h.rank = :three_card
             h.value = [a, b, c].sort
           }
         end
@@ -280,7 +285,7 @@ module Poker
             b = other.select { |card| card.suit != a.suit && card.kind != a.kind }.first
           end
           hand.tap { |h|
-            h.rank = :badugi2
+            h.rank = :two_card
             h.value = [a, b].sort
           }
         end
@@ -288,7 +293,7 @@ module Poker
         def one?(hand)
           return false unless hand.kinds.size == 1 || hand.suits.size == 1
           hand.tap { |h|
-            h.rank = :badugi1
+            h.rank = :one_card
             h.value = [if hand.kinds.size == 1
               hand.cards.first
             else

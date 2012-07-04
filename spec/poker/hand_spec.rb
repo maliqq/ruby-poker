@@ -40,7 +40,7 @@ describe Hand do
   
   describe Hand::Badugi do
     example 'four' do
-      Hand::Badugi['AsKcQdTh'].rank.should == :badugi4
+      Hand::Badugi['AsKcQdTh'].value.should == %w(A T Q K)
     end
     
     example 'three' do
