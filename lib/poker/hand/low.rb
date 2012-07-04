@@ -2,8 +2,8 @@ module Poker
   module Low
     class Hand < ::Poker::Hand
       def <=>(b)
-        return b.value.reverse == self.value.reverse unless self.value == b.value
-        
+        return b.value.reverse <=> self.value.reverse unless self.value == b.value
+
         return 0
       end
 
