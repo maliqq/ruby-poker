@@ -49,7 +49,10 @@ module Poker
     
     def value=(value)
       @value = value
-      @kickers = (@cards - @value).sort.reverse.slice(0, 5 - @value.size) if @value.size < 5
+    end
+    
+    def kickers!
+      @kickers = (@cards - @value).sort.reverse.slice(0, 5 - @value.size)
     end
 
     def ==(b)
@@ -71,12 +74,12 @@ module Poker
         return h <=> b.high[i] unless h == b.high[i]
       }
       
-      self.kickers.each_with_index { |k, i|
-        return k <=> b.kickers[i] unless k == b.kickers[i]
-      } if self.value == b.value
-      
       self.value.each_with_index { |v, i|
         return v <=> b.value[i] unless v == b.value[i]
+      }
+      
+      self.kickers.each_with_index { |k, i|
+        return k <=> b.kickers[i] unless k == b.kickers[i]
       }
       
       return 0
@@ -148,6 +151,7 @@ module Poker
           hand.tap { |h|
             h.rank = :four_kind
             h.value = quad
+            h.kickers!
           }
         end
 
@@ -157,6 +161,7 @@ module Poker
           hand.tap { |h|
             h.rank = :three_kind
             h.value = sets.first
+            h.kickers!
           }
         end
 
@@ -190,6 +195,7 @@ module Poker
             h.rank = :two_pair
             h.value = major + minor
             h.high = [major.max, minor.max]
+            h.kickers!
           }
         end
 
@@ -202,6 +208,7 @@ module Poker
           hand.tap { |h|
             h.rank = :one_pair
             h.value = pair
+            h.kickers!
           }
         end
 
@@ -209,6 +216,7 @@ module Poker
           hand.tap { |h|
             h.rank = :high_card
             h.value = [h.cards.max]
+            h.kickers!
           }
         end
       end

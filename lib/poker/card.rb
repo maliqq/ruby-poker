@@ -46,7 +46,7 @@ module Poker
       end
       
       def deck
-        KINDS.collect { |kind|
+        KINDS.slice(1..-1).collect { |kind|
           SUITS.collect { |suit|
             new(kind, suit)
           }

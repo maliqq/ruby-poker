@@ -12,6 +12,6 @@ describe Card do
   
   example 'parse' do
     Card['AhAdAcAs'].size.should == 4
-    puts Card.deck.to_s
+    Card.deck.size.should == 52
   end
 end
