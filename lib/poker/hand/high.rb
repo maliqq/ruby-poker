@@ -27,10 +27,11 @@ module Poker
       def straight_flush?(hand)
         flush = flush?(hand)
         if flush
-          h = Hand.new(flush.value)
-          if straight?(h)
-            flush.tap { |h|
+          if straight = straight?(Hand.new(flush.value))
+            hand.tap { |h|
               h.rank = :straight_flush
+              h.value = straight.value
+              h.high = straight.high
             }
           else
             detect_high(hand, [:four_kind?, :full_house?]) || flush
