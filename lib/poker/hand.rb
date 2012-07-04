@@ -39,7 +39,7 @@ module Poker
         end
         if prev.index == card.index
           #gap << card
-        elsif prev.index - card.index < 2 || card.index - prev.index == 12
+        elsif prev.index - card.index == 1 || card.index - prev.index == 12
           gap << card
         else
           gaps << gap

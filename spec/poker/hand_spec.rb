@@ -24,6 +24,7 @@ describe Hand do
     example 'wheel straight' do
       High['Ad2c3d4d5d'].rank.should == :straight
       High['Ad2d3d4d5d'].rank.should == :straight_flush
+      High['8h4dAc5s3h6s4c'].rank.should_not == :straight
     end
 
     example 'three kind' do
