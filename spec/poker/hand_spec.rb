@@ -41,6 +41,7 @@ describe Hand do
   describe Hand::Badugi do
     example 'four' do
       Hand::Badugi['AsKcQdTh'].value.should == %w(A T Q K)
+      Hand::Badugi['As2c3d4h'].value.should == %w(A 2 3 4)
     end
     
     example 'three' do

@@ -7,7 +7,8 @@ module Poker
     attr_accessor :low
     
     SUITS = %w(s c h d)
-    KINDS = %w(1 2 3 4 5 6 7 8 9 T J Q K A)
+    KINDS = %w(2 3 4 5 6 7 8 9 T J Q K A)
+    KINDS_LOW = %w(A 2 3 4 5 6 7 8 9 T J Q K)
     
     def initialize(kind, suit)
       @kind = kind
@@ -31,7 +32,7 @@ module Poker
           else
             parse(card)
           end
-        when Card
+        when Card, Array
           card
         end
       end
@@ -40,14 +41,14 @@ module Poker
       
       def low(cards)
         wrap(cards).map { |card|
-          card.low = true if card.kind == 'A'
+          card.low = true
           card
         }
       end
       
       def deck
-        KINDS.slice(1..-1).collect { |kind|
-          SUITS.collect { |suit|
+        SUITS.collect { |suit|
+          KINDS.collect { |kind|
             new(kind, suit)
           }
         }.flatten
@@ -55,7 +56,7 @@ module Poker
     end
     
     def index
-      KINDS.index(low ? '1' : self.kind)
+      (low ? KINDS_LOW : KINDS).index(@kind)
     end
     
     #CHARS =  %w(♠ ♥ ♦ ♣)
