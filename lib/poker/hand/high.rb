@@ -30,6 +30,10 @@ module Poker
           return false
         end
       end
+    
+      def index
+        RANKS.index(@rank.to_s)
+      end
 
       def kickers!
         @kickers = (@cards - @value).sort.reverse.slice(0, 5 - @value.size)

@@ -16,6 +16,10 @@ module Poker
 
         return 0
       end
+    
+      def index
+        RANKS.index(@rank.to_s)
+      end
     end
     
     class << self

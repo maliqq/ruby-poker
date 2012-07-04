@@ -6,8 +6,6 @@ module Poker
   class Hand
     include Comparable
     
-    RANKS = []
-
     attr_reader :cards, :kinds, :suits
     attr_accessor :rank, :high, :value, :kickers
     
@@ -58,10 +56,6 @@ module Poker
 
     def ==(b)
       @rank == b.rank && @value == b.value && @kickers == b.kickers
-    end
-    
-    def index
-      RANKS.index(@rank.to_s)
     end
 
     def ==(b)
