@@ -44,22 +44,22 @@ describe Hand do
     end
     
     example 'three' do
-      Hand::Badugi['AsAc9h8d'].rank.should == :badugi3
-      Hand::Badugi['AsKs9h8d'].rank.should == :badugi3
-      Hand::Badugi['AsAc9c8d'].rank.should == :badugi3
-      Hand::Badugi['AdQc9s8s'].rank.should == :badugi3
+      Hand::Badugi['AsAc9h8d'].value.should == %w(A 8 9)
+      Hand::Badugi['AsKs9h8d'].value.should == %w(A 8 9)
+      Hand::Badugi['AsAc9c8d'].value.should == %w(A 8 9)
+      Hand::Badugi['AdQc9s8s'].value.should == %w(A 8 Q)
     end
     
     example 'two' do
-      Hand::Badugi['AsAcKdKc'].rank.should == :badugi2
-      Hand::Badugi['AsAcAd6c'].rank.should == :badugi2
-      Hand::Badugi['JsTs8sAd'].rank.should == :badugi2
-      Hand::Badugi['AdAc9c9c'].rank.should == :badugi2
+      Hand::Badugi['AsAcKdKc'].value.should == %w(A K)
+      Hand::Badugi['AsAcAd6c'].value.should == %w(A 6)
+      Hand::Badugi['JsTs8sAd'].value.should == %w(A 8)
+      Hand::Badugi['AdAc9c9c'].value.should == %w(A 9)
     end
     
     example 'one' do
-      Hand::Badugi['AsAcAdAh'].rank.should == :badugi1
-      Hand::Badugi['AsKsQsJs'].rank.should == :badugi1
+      Hand::Badugi['AsAcAdAh'].value.should == %w(A)
+      Hand::Badugi['AsKsQsJs'].value.should == %w(A)
     end
   end
 end

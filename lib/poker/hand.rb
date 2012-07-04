@@ -16,11 +16,11 @@ module Poker
     end
     
     def paired(n = nil)
-      n ? @kinds.values.select { |g| g.size == n } : @kinds.values
+      @kinds.values.select { |g| n ? g.size == n : g.size > 1 }
     end
     
     def suited(n = nil)
-      n ? @suits.values.select { |g| g.size == n } : @suits.values
+      @suits.values.select { |g| n ? g.size == n : g.size > 1 }
     end
 
     def gaps
@@ -82,7 +82,7 @@ module Poker
       
       return 0
     end
-
+    
     module High
       class << self
         def detect(cards)
@@ -221,7 +221,7 @@ module Poker
         end
 
         def [](cards)
-          detect(Card[cards])
+          detect(Card.low(cards))
         end
 
         def detect_badugi(hand, ranks)
@@ -237,7 +237,8 @@ module Poker
           return false unless hand.kinds.size == 4 && hand.suits.size == 4
           hand.tap { |h|
             h.rank = :badugi4
-          } 
+            h.value = hand.cards.sort
+          }
         end
 
         def three?(hand)
@@ -260,7 +261,7 @@ module Poker
           end
           hand.tap { |h|
             h.rank = :badugi3
-            h.value = [a, b, c]
+            h.value = [a, b, c].sort
           }
         end
 
@@ -270,13 +271,17 @@ module Poker
             b = (hand.cards - set).first
             a = set.select { |card| card.suit != b.suit }.first
           elsif flush = hand.suited(3).first
-            b = (hand.cards - flush).first
-            a = flush.select { |card| card.kind != b.kind }.first
+            a = (hand.cards - flush).first
+            b = flush.select { |card| card.kind != a.kind }.min
           else
+            flush = hand.suited.first
+            a = flush.min
+            other = hand.cards - flush
+            b = other.select { |card| card.suit != a.suit && card.kind != a.kind }.first
           end
           hand.tap { |h|
             h.rank = :badugi2
-            h.value = [a, b]
+            h.value = [a, b].sort
           }
         end
 

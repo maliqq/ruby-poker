@@ -4,9 +4,10 @@ module Poker
   class Card
     include Comparable
     attr_reader :kind, :suit
+    attr_accessor :low
     
     SUITS = %w(s c h d)
-    KINDS = %w(2 3 4 5 6 7 8 9 T J Q K A)
+    KINDS = %w(1 2 3 4 5 6 7 8 9 T J Q K A)
     
     def initialize(kind, suit)
       @kind = kind
@@ -37,6 +38,13 @@ module Poker
       
       alias :[] wrap
       
+      def low(cards)
+        wrap(cards).map { |card|
+          card.low = true if card.kind == 'A'
+          card
+        }
+      end
+      
       def deck
         KINDS.collect { |kind|
           SUITS.collect { |suit|
@@ -47,21 +55,21 @@ module Poker
     end
     
     def index
-      KINDS.index(@kind)
+      KINDS.index(low ? '1' : self.kind)
     end
     
     #CHARS =  %w(♠ ♥ ♦ ♣)
     
     def to_s
-      "#{@kind}#{@suit}"
+      "#{self.kind}#{self.suit}"
     end
     
     def ==(b)
-      @kind == b.kind
+      b.respond_to?(:kind) ? self.kind == b.kind : self.kind == b
     end
     
     def ===(b)
-      self == b && @suit == b.suit
+      b.is_a?(Card) && self == b && self.suit == b.suit
     end
     
     def <=> (b)
@@ -69,7 +77,7 @@ module Poker
     end
     
     def to_i
-      self.index << 2 + SUITS.index(@suit)
+      self.index << 2 + SUITS.index(self.suit)
     end
   end
 end
