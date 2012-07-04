@@ -8,6 +8,10 @@ module Poker
 
         return 0
       end
+
+      def ==(b)
+        self.value == b.value
+      end
     end
 
     class << self
