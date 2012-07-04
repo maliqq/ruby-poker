@@ -45,7 +45,7 @@ module Poker
         return false unless suited.size == 1
         hand.tap { |h|
           h.rank = :flush
-          h.value = suited.sort.reverse.slice(0, 5)
+          h.value = suited.first.sort.reverse.slice(0, 5)
         }
       end
 
@@ -56,7 +56,7 @@ module Poker
         hand.tap { |h|
           h.rank = :straight
           h.value = row.sort.reverse.slice(0, 5)
-          h.high = row.max
+          h.high = [row.max]
         }
       end
 
