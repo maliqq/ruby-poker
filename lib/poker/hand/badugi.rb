@@ -6,13 +6,9 @@ module Poker
       def <=>(b)
         return self.index <=> b.index unless self.index == b.index
         
-        self.high.each_with_index { |h, i|
-          return b.high[i] <=> h unless h == b.high[i]
-        }
+        return self.high <=> b.high unless self.high == b.high
         
-        self.value.each_with_index { |v, i|
-          return b.value[i] <=> v unless v == b.value[i]
-        }
+        return b.value.reverse <=> self.value.reverse unless self.value == b.value
 
         return 0
       end

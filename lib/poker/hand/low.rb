@@ -2,10 +2,8 @@ module Poker
   module Low
     class Hand < ::Poker::Hand
       def <=>(b)
-        self.value.each_with_index { |v, i|
-          return b.value[i] <=> v unless v == b.value[i]
-        }
-
+        return b.value.reverse == self.value.reverse unless self.value == b.value
+        
         return 0
       end
 

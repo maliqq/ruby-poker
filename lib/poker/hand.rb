@@ -61,5 +61,9 @@ module Poker
     def ==(b)
       self.index == b.index && self.value == b.value
     end
+
+    def inspect
+      "<#{@rank}:#{@cards.inspect} high=#{@high.inspect} value=#{@value.inspect} kickers=#{@kickers.inspect}>"
+    end
   end
 end

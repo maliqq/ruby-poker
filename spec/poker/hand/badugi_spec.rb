@@ -1,6 +1,13 @@
 require 'spec_helper'
 
 describe Hand::Badugi do
+  example 'comparing' do
+    Badugi['AsAcAdAh'].should be < Badugi['AsKcQdTh']
+    Badugi['AsAc9h8d'].should be < Badugi['As2c3d4h']
+    Badugi['AsKcQdTh'].should be < Badugi['As2c3d4h']
+    Badugi['AsKcQdTh'].should be < Badugi['As2c3d4h']
+  end
+
   example 'four' do
     Badugi['AsKcQdTh'].value.should == %w(A T Q K)
     Badugi['As2c3d4h'].value.should == %w(A 2 3 4)
