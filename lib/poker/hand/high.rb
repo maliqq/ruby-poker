@@ -56,7 +56,7 @@ module Poker
         hand.tap { |h|
           h.rank = :straight
           h.value = row
-          h.high = row.first
+          h.high = [row.first]
         }
       end
 
