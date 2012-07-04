@@ -1,5 +1,6 @@
 source :rubygems
 
+gem 'rake'
 gem 'activesupport'
 
 group :test do
