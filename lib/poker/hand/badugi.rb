@@ -1,10 +1,10 @@
 module Poker
   module Badugi
     class Hand < ::Poker::Hand
-      RANKS = %w(four_card three_card two_card one_card)
+      RANKS = %w(one_card two_card three_card four_card)
 
       def <=>(b)
-        return self.index <=> b.index unless self.index == b.index
+        return b.index <=> self.index unless self.index == b.index
         
         self.high.each_with_index { |h, i|
           return b.high[i] <=> h unless h == b.high[i]
@@ -13,7 +13,7 @@ module Poker
         self.value.each_with_index { |v, i|
           return b.value[i] <=> v unless v == b.value[i]
         }
-        
+
         return 0
       end
     end
