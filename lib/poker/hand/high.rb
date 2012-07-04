@@ -27,9 +27,9 @@ module Poker
       def straight_flush?(hand)
         flush = flush?(hand)
         if flush
-          straight = straight?(flush)
-          if straight
-            straight.tap { |h|
+          h = Hand.new(flush.value)
+          if straight?(h)
+            flush.tap { |h|
               h.rank = :straight_flush
             }
           else
@@ -45,7 +45,7 @@ module Poker
         return false unless suited.size == 1
         hand.tap { |h|
           h.rank = :flush
-          h.value = suited.first.sort.reverse.slice(0, 5)
+          h.value = suited.first.sort.reverse
         }
       end
 
@@ -55,7 +55,7 @@ module Poker
         row = gaps.first
         hand.tap { |h|
           h.rank = :straight
-          h.value = row.sort.reverse.slice(0, 5)
+          h.value = row.sort.reverse
           h.high = [row.max]
         }
       end

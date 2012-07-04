@@ -14,8 +14,8 @@ module Poker
       @cards = cards
       @kinds = @cards.group_by(&:kind)
       @suits = @cards.group_by(&:suit)
-      @kickers = @high = []
-      @value = @rank = nil
+      @kickers = []
+      @high = @value = @rank = nil
     end
     
     def paired(n = nil)
@@ -51,8 +51,8 @@ module Poker
       gaps
     end
     
-    def value=(value)
-      @value = value
+    def high
+      @high ||= [@value.first]
     end
     
     def kickers!
