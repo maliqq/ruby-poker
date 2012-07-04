@@ -50,6 +50,7 @@ describe Hand do
       Badugi['AsKs9h8d'].value.should == %w(A 8 9)
       Badugi['AsAc9c8d'].value.should == %w(A 8 9)
       Badugi['AdQc9s8s'].value.should == %w(A 8 Q)
+      Badugi['4d4hAd9s'].value[2].suit.should_not == 'd'  
     end
     
     example 'two' do

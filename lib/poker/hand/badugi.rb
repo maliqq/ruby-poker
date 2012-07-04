@@ -42,6 +42,7 @@ module Poker
           other = hand.cards - pair
           b, c = other.select { |card| card.kind != a.kind }
           return false if b.suit == c.suit
+          a = pair.second if b.suit == a.suit || c.suit == a.suit
         elsif flush.size == 1 && pairs.empty?
           a = flush.first.min
           other = hand.cards - flush.first
