@@ -1,6 +1,10 @@
 # encoding: utf-8
 
 module Poker
+  def Card(card)
+    Card.wrap(card)
+  end
+  
   class Card
     include Comparable
     
@@ -18,6 +22,7 @@ module Poker
     
     class << self
       def parse(str)
+        return str if str.is_a?(Array)
         str.scan(/([akqjt2-9]{1})([schd]{1})/i).map { |(kind, suit)| new(kind, suit) }
       end
       
@@ -28,20 +33,16 @@ module Poker
           suit = SUITS[card & 3]
           new(kind, suit)
         when String
-          if card.size == 2
-            new(*card.split(//, 2))
-          else
-            parse(card)
-          end
-        when Card, Array
+          new(*card.split(//, 2))
+        when Card
           card
         end
       end
       
-      alias :[] wrap
+      alias :[] parse
       
       def low(cards)
-        wrap(cards).map { |card|
+        parse(cards).map { |card|
           card.low = true
           card
         }

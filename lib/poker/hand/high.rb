@@ -2,6 +2,10 @@ module Poker
   module High
     class Hand < ::Poker::Hand
       RANKS = %w(high_card one_pair two_pair three_kind straight flush full_house four_kind straight_flush)
+    
+      def kickers!
+        @kickers = (@cards - @value).sort.reverse.slice(0, 5 - @value.size)
+      end
     end
     
     class << self

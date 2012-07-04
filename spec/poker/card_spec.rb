@@ -5,9 +5,9 @@ describe Card do
     card = Card.new('A', 's')
     card.to_s.should == 'As'
     
-    Card['Ks'].kind.should == 'K'
-    Card[card.to_i].should == card
-    Card[card].should == card
+    Card('Ks').kind.should == 'K'
+    Card(card.to_i).should == card
+    Card(card).should == card
   end
   
   example 'parse' do

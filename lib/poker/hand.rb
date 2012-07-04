@@ -1,6 +1,7 @@
 module Poker
   autoload :High, 'poker/hand/high'
   autoload :Badugi, 'poker/hand/badugi'
+  autoload :Low, 'poker/hand/low'
   
   class Hand
     include Comparable
@@ -54,10 +55,6 @@ module Poker
     def high
       @high ||= [@value.first]
     end
-    
-    def kickers!
-      @kickers = (@cards - @value).sort.reverse.slice(0, 5 - @value.size)
-    end
 
     def ==(b)
       @rank == b.rank && @value == b.value && @kickers == b.kickers
@@ -70,6 +67,8 @@ module Poker
     def ==(b)
       self.index == b.index && self.value == b.value
     end
+
+    attr_reader :ties, :wins, :loses
 
     def <=>(b)
       return self.index <=> b.index unless self.index == b.index
@@ -85,7 +84,7 @@ module Poker
       self.kickers.each_with_index { |k, i|
         return k <=> b.kickers[i] unless k == b.kickers[i]
       }
-      
+
       return 0
     end
   end
