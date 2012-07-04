@@ -21,6 +21,16 @@ module Poker
         return 0
       end
 
+      def ==(b)
+        if super(b)
+          self.kickers.each_with_index { |k, i|
+            return false unless k == b.kickers[i]
+          }
+        else
+          return false
+        end
+      end
+
       def kickers!
         @kickers = (@cards - @value).sort.reverse.slice(0, 5 - @value.size)
       end
