@@ -3,6 +3,24 @@ module Poker
     class Hand < ::Poker::Hand
       RANKS = %w(high_card one_pair two_pair three_kind straight flush full_house four_kind straight_flush)
     
+      def <=>(b)
+        return self.index <=> b.index unless self.index == b.index
+        
+        self.high.each_with_index { |h, i|
+          return h <=> b.high[i] unless h == b.high[i]
+        }
+        
+        self.value.each_with_index { |v, i|
+          return v <=> b.value[i] unless v == b.value[i]
+        }
+        
+        self.kickers.each_with_index { |k, i|
+          return k <=> b.kickers[i] unless k == b.kickers[i]
+        }
+
+        return 0
+      end
+
       def kickers!
         @kickers = (@cards - @value).sort.reverse.slice(0, 5 - @value.size)
       end

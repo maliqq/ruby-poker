@@ -67,25 +67,5 @@ module Poker
     def ==(b)
       self.index == b.index && self.value == b.value
     end
-
-    attr_reader :ties, :wins, :loses
-
-    def <=>(b)
-      return self.index <=> b.index unless self.index == b.index
-      
-      self.high.each_with_index { |h, i|
-        return h <=> b.high[i] unless h == b.high[i]
-      }
-      
-      self.value.each_with_index { |v, i|
-        return v <=> b.value[i] unless v == b.value[i]
-      }
-      
-      self.kickers.each_with_index { |k, i|
-        return k <=> b.kickers[i] unless k == b.kickers[i]
-      }
-
-      return 0
-    end
   end
 end
