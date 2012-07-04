@@ -55,8 +55,8 @@ module Poker
         row = gaps.first
         hand.tap { |h|
           h.rank = :straight
-          h.value = row.sort.reverse
-          h.high = [row.max]
+          h.value = row
+          h.high = row.first
         }
       end
 
