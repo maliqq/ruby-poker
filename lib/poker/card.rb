@@ -4,7 +4,7 @@ module Poker
   def Card(card)
     Card.wrap(card)
   end
-  
+
   class Card
     include Comparable
     
@@ -81,7 +81,7 @@ module Poker
     end
     
     def <=> (b)
-      self.index <=> b.index
+      b.respond_to?(:index) ? self.index <=> b.index : 1
     end
     
     def to_i
