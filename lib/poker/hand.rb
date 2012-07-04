@@ -3,7 +3,7 @@ module Poker
     include Comparable
 
     attr_reader :cards, :kinds, :suits
-    attr_accessor :rank, :high, :value
+    attr_accessor :rank, :high, :value, :kickers
     
     RANKS = %w(high_card one_pair two_pair three_kind straight flush full_house four_kind straight_flush)
 
@@ -11,11 +11,16 @@ module Poker
       @cards = cards
       @kinds = @cards.group_by(&:kind)
       @suits = @cards.group_by(&:suit)
-      @high = @value = @rank = @kickers = nil
+      @kickers = @high = []
+      @value = @rank = nil
     end
-
-    def repeats(n)
-      @kinds.values.select { |g| g.size == n }
+    
+    def paired(n = nil)
+      n ? @kinds.values.select { |g| g.size == n } : @kinds.values
+    end
+    
+    def suited(n = nil)
+      n ? @suits.values.select { |g| g.size == n } : @suits.values
     end
 
     def gaps
@@ -42,9 +47,10 @@ module Poker
       gaps << gap
       gaps
     end
-
-    def kickers
-      @kickers ||= (@cards - @value).sort.reverse.slice(0, 5 - @value.size)
+    
+    def value=(value)
+      @value = value
+      @kickers = (@cards - @value).sort.reverse.slice(0, 5 - @value.size) if @value.size < 5
     end
 
     def ==(b)
@@ -64,12 +70,12 @@ module Poker
       
       self.high.each_with_index { |h, i|
         return h <=> b.high[i] unless h == b.high[i]
-      } if self.high
+      }
       
       self.kickers.each_with_index { |k, i|
         return k <=> b.kickers[i] unless k == b.kickers[i]
       } if self.value == b.value
-
+      
       self.value.each_with_index { |v, i|
         return v <=> b.value[i] unless v == b.value[i]
       }
@@ -80,6 +86,7 @@ module Poker
     module High
       class << self
         def detect(cards)
+          raise ArgumentError.new('7 or less cards allowed for high') unless cards.size <= 7
           hand = Hand.new(cards)
           detect_high(hand, [:straight_flush?, :three_kind?, :two_pair?, :one_pair?, :high_card?])
         end
@@ -114,7 +121,7 @@ module Poker
         end
 
         def flush?(hand)
-          suited = hand.suits.values.select { |g| g.size >= 5 }
+          suited = hand.suited.select { |g| g.size >= 5 }
           return false unless suited.size == 1
           hand.tap { |h|
             h.rank = :flush
@@ -134,16 +141,16 @@ module Poker
         end
 
         def four_kind?(hand)
-          quads = hand.repeats(4)
-          return false unless quads.size == 1
+          quad = hand.paired(4).first
+          return false unless quad
           hand.tap { |h|
             h.rank = :four_kind
-            h.value = quads.first
+            h.value = quad
           }
         end
 
         def three_kind?(hand)
-          sets = hand.repeats(3)
+          sets = hand.paired(3)
           return false unless sets.size == 1
           hand.tap { |h|
             h.rank = :three_kind
@@ -152,8 +159,8 @@ module Poker
         end
 
         def full_house?(hand)
-          sets = hand.repeats(3)
-          pairs = hand.repeats(2)
+          sets = hand.paired(3)
+          pairs = hand.paired(2)
 
           return false if sets.empty? || (sets.size == 1 && pairs.empty?)
 
@@ -172,7 +179,7 @@ module Poker
         end
 
         def two_pair?(hand)
-          pairs = hand.repeats(2)
+          pairs = hand.paired(2)
 
           return false if pairs.size < 2
 
@@ -185,7 +192,7 @@ module Poker
         end
 
         def one_pair?(hand)
-          pairs = hand.repeats(2)
+          pairs = hand.paired(2)
 
           return false unless pairs.size == 1
 
@@ -206,39 +213,84 @@ module Poker
     end
 
     module Badugi
-      def detect(cards)
-        raise ArgumentError('4 cards allowed for badugi') unless cards.size == 4
-        hand = Hand.new(cards)
-        detect_badugi(hand, [:one?, :four?, :two?, :three?])
-      end
+      class << self
+        def detect(cards)
+          raise ArgumentError.new('exactly 4 cards allowed for badugi') unless cards.size == 4
+          hand = Hand.new(cards)
+          detect_badugi(hand, [:one?, :four?, :three?, :two?])
+        end
 
-      def four?(hand)
-        return false unless hand.kinds.size == 4 || hand.suits.size == 4
-        hand.tap { |h|
-          h.rank = :badugi4
-        } 
-      end
+        def [](cards)
+          detect(Card[cards])
+        end
 
-      def three?(hand)
-      end
+        def detect_badugi(hand, ranks)
+          result = false
+          ranks.each { |rank|
+            result = send(rank, hand)
+            break if result
+          }
+          return result
+        end
 
-      def two?(hand)
-      end
+        def four?(hand)
+          return false unless hand.kinds.size == 4 && hand.suits.size == 4
+          hand.tap { |h|
+            h.rank = :badugi4
+          } 
+        end
 
-      def one?(hand)
-        return false unless hand.kinds.size == 1 || hand.suits.size == 1
-        hand.tap { |h|
-          h.rank = :badugi1
-        }
-      end
+        def three?(hand)
+          pairs = hand.paired(2)
+          flush = hand.suited(2)
+          a = b = c = nil
+          if pairs.size == 1
+            pair = pairs.first
+            a = pair.first
+            other = hand.cards - pair
+            b, c = other.select { |card| card.kind != a.kind }
+            return false if b.suit == c.suit
+          elsif flush.size == 1 && pairs.empty?
+            a = flush.first.min
+            other = hand.cards - flush.first
+            b, c = other.select { |card| card.suit != a.suit }
+            return false if b.kind == c.kind
+          else
+            return false
+          end
+          hand.tap { |h|
+            h.rank = :badugi3
+            h.value = [a, b, c]
+          }
+        end
 
-      def detect_badugi(hand, ranks)
-        result = false
-        ranks.each { |rank|
-          result = send(rank)
-          break if result
-        }
-        return result
+        def two?(hand)
+          a = b = nil
+          if set = hand.paired(3).first
+            b = (hand.cards - set).first
+            a = set.select { |card| card.suit != b.suit }.first
+          elsif flush = hand.suited(3).first
+            b = (hand.cards - flush).first
+            a = flush.select { |card| card.kind != b.kind }.first
+          else
+          end
+          hand.tap { |h|
+            h.rank = :badugi2
+            h.value = [a, b]
+          }
+        end
+
+        def one?(hand)
+          return false unless hand.kinds.size == 1 || hand.suits.size == 1
+          hand.tap { |h|
+            h.rank = :badugi1
+            h.value = [if hand.kinds.size == 1
+              hand.cards.first
+            else
+              hand.suited.first.min
+            end]
+          }
+        end
       end
     end
   end

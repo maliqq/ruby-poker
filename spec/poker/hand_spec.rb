@@ -37,4 +37,29 @@ describe Hand do
       Hand::High['AhAdAcAsKd'].should > Hand::High['AhAdAcAsQd']
     end
   end
+  
+  describe Hand::Badugi do
+    example 'four' do
+      Hand::Badugi['AsKcQdTh'].rank.should == :badugi4
+    end
+    
+    example 'three' do
+      Hand::Badugi['AsAc9h8d'].rank.should == :badugi3
+      Hand::Badugi['AsKs9h8d'].rank.should == :badugi3
+      Hand::Badugi['AsAc9c8d'].rank.should == :badugi3
+      Hand::Badugi['AdQc9s8s'].rank.should == :badugi3
+    end
+    
+    example 'two' do
+      Hand::Badugi['AsAcKdKc'].rank.should == :badugi2
+      Hand::Badugi['AsAcAd6c'].rank.should == :badugi2
+      Hand::Badugi['JsTs8sAd'].rank.should == :badugi2
+      Hand::Badugi['AdAc9c9c'].rank.should == :badugi2
+    end
+    
+    example 'one' do
+      Hand::Badugi['AsAcAdAh'].rank.should == :badugi1
+      Hand::Badugi['AsKsQsJs'].rank.should == :badugi1
+    end
+  end
 end
