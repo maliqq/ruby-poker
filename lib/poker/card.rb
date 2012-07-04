@@ -3,12 +3,13 @@
 module Poker
   class Card
     include Comparable
+    
     attr_reader :kind, :suit
     attr_accessor :low
     
+    ACE = 12
     SUITS = %w(s c h d)
     KINDS = %w(2 3 4 5 6 7 8 9 T J Q K A)
-    KINDS_LOW = %w(A 2 3 4 5 6 7 8 9 T J Q K)
     
     def initialize(kind, suit)
       @kind = kind
@@ -56,10 +57,15 @@ module Poker
     end
     
     def index
-      (low ? KINDS_LOW : KINDS).index(@kind)
+      idx = KINDS.index(@kind)
+      low ? (idx == ACE ? 0 : idx + 1) : idx
     end
     
-    #CHARS =  %w(♠ ♥ ♦ ♣)
+    CHARS =  %w(♠ ♥ ♦ ♣)
+    
+    def to_str
+      "#{self.kind}#{CHARS[SUITS.index(self.suit)]}"
+    end
     
     def to_s
       "#{self.kind}#{self.suit}"

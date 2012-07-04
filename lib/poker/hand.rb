@@ -9,7 +9,6 @@ module Poker
 
     attr_reader :cards, :kinds, :suits
     attr_accessor :rank, :high, :value, :kickers
-    attr_accessor :ranks
     
     def initialize(cards)
       @cards = cards
