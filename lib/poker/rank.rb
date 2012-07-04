@@ -8,7 +8,7 @@ module Poker
       end
     end
 
-    def initialize(hands)
+    def initialize(hands = [])
       @hands = hands
     end
 
