@@ -45,15 +45,15 @@ module Poker
       alias :ace_five? row_low?
       
       def ace_five_with_eight_qualifier?(str)
-        straight_low?(str, true, '8')
+        row_low?(str, true, '8')
       end
       
       def ace_five_with_nine_qualifier?(str)
-        straight_low?(str, true, '9')
+        row_low?(str, true, '9')
       end
       
       def deuce_six?(str)
-        straight_low?(str, false)
+        row_low?(str, false)
       end
 
       def gap_low?(str, ace_low = false)
