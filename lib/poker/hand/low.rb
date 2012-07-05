@@ -17,13 +17,13 @@ module Poker
         hand = ::Poker::Low::Hand.new(Card.low(cards))
         hand.rank = :low
         hand.value = hand.kinds.values.map(&:first).sort.slice(0, 5)
-        if hand.value.size < 5
-          paired = (hand.cards - hand.value).sort
-          while hand.value.size < 5
-            hand.value << paired.shift
-          end 
-        end
-        hand.high = [hand.value.max]
+        #if hand.value.size < 5
+        #  paired = (hand.cards - hand.value).sort
+        #  while hand.value.size < 5
+        #    hand.value << paired.shift
+        #  end 
+        #end
+        hand.high = [hand.value.max] if hand.value.size == 5
         hand
       end
     end
