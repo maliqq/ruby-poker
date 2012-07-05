@@ -23,6 +23,7 @@ module Poker
             hand.value << paired.shift
           end 
         end
+        hand.high = [hand.value.max]
         hand
       end
     end
