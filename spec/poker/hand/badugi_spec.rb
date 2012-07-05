@@ -26,6 +26,7 @@ describe Hand::Badugi do
     Badugi['AsAcAd6c'].value.should == %w(A 6)
     Badugi['JsTs8sAd'].value.should == %w(A 8)
     Badugi['AdAc9c9c'].value.should == %w(A 9)
+    Badugi['9h6sKh9s'].value.should == %w(6 9)
   end
   
   example 'one' do

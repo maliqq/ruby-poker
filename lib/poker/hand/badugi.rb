@@ -54,7 +54,7 @@ module Poker
         pairs = hand.paired(2)
         flush = hand.suited(2)
         a = b = c = nil
-        if pairs.size == 1
+        if pairs.size == 1 && flush.size != 2
           pair = pairs.first
           a = pair.first
           other = hand.cards - pair
