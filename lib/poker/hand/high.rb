@@ -15,10 +15,6 @@ module Poker
         return 0
       end
 
-      def high
-        @high ||= [@value.max]
-      end
-
       def ==(b)
         if super(b)
           self.kickers.each_with_index { |k, i|

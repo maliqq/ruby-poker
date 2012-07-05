@@ -12,6 +12,10 @@ module Poker
 
         return 0
       end
+
+      def high
+        @high ||= [@value.max]
+      end
     
       def index
         RANKS.index(@rank.to_s)
