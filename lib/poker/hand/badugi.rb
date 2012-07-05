@@ -1,33 +1,26 @@
 module Poker
-  module Badugi
-    class Hand < ::Poker::Hand
-      RANKS = %w(one_card two_card three_card four_card)
+  class Hand::Badugi < ::Poker::Hand
+    RANKS = %w(one_card two_card three_card four_card)
 
-      def <=>(b)
-        return self.index <=> b.index unless self.index == b.index
-        
-        return b.high <=> self.high unless self.high == b.high
-        
-        return b.value.reverse <=> self.value.reverse unless self.value == b.value
+    def <=>(b)
+      return self.index <=> b.index unless self.index == b.index
+      
+      return b.high <=> self.high unless self.high == b.high
+      
+      return b.value.reverse <=> self.value.reverse unless self.value == b.value
 
-        return 0
-      end
+      return 0
+    end
 
-      def high
-        @high ||= [@value.max]
-      end
-    
-      def index
-        RANKS.index(@rank.to_s)
-      end
+    def high
+      @high ||= [@value.max]
     end
     
     class << self
       def badugi?(cards)
         raise ArgumentError.new('exactly 4 cards allowed for badugi') unless cards.size == 4
         
-        hand = ::Poker::Badugi::Hand.new(cards)
-        hand.ace_low!
+        hand = ::Poker::Hand::Badugi.new(cards, low: true)
         
         detect(hand, [:one?, :four?, :three?, :two?])
       end

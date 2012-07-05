@@ -1,49 +1,56 @@
 module Poker
-  module High
-    class Hand < ::Poker::Hand
-      RANKS = %w(high_card one_pair two_pair three_kind straight flush full_house four_kind straight_flush)
+  class Hand::High < ::Poker::Hand
+    RANKS = %w(high_card one_pair two_pair three_kind straight flush full_house four_kind straight_flush)
 
-      def <=>(b)
-        return 1 unless b.respond_to?(:rank) && RANKS.include?(b.rank.to_s)
+    def <=>(b)
+      return 1 unless rank
+      return -1 unless self.rank
+      
+      [:index, :high, :value, :kickers].each { |meth|
+        return send("compare_#{meth}", b.send(meth)) unless self.send(meth) == b.send(meth)
+      }
 
-        return self.index <=> b.index unless self.index == b.index
-        
-        return self.high <=> b.high unless self.high == b.high
-        
-        return self.value <=> b.value unless self.value == b.value
-        
-        return self.kickers <=> b.kickers unless self.kickers == b.kickers
+      return 0
+    end
 
-        return 0
+    def compare_index(index)
+      self.index <=> index
+    end
+
+    def compare_high(high)
+      self.high <=> high
+    end
+
+    def compare_value(value)
+      self.value <=> value
+    end
+
+    def compare_kickers(kickers)
+      self.kickers <=> kickers
+    end
+
+    def high
+      @high ||= [@value.first]
+    end
+
+    def ==(b)
+      if super(b)
+        self.kickers.each_with_index { |k, i|
+          return false unless k == b.kickers[i]
+        }
+      else
+        return false
       end
+    end
 
-      def high
-        @high ||= [@value.first]
-      end
-
-      def ==(b)
-        if super(b)
-          self.kickers.each_with_index { |k, i|
-            return false unless k == b.kickers[i]
-          }
-        else
-          return false
-        end
-      end
-    
-      def index
-        RANKS.index(@rank.to_s)
-      end
-
-      def kickers!
-        @kickers = (@cards - @value).sort.reverse.slice(0, 5 - @value.size)
-      end
+    def kickers!
+      @kickers = (@cards - @value).sort.reverse.slice(0, 5 - @value.size)
     end
     
     class << self
       def high?(cards)
         raise ArgumentError.new('7 or less cards allowed for high') unless cards.size <= 7
-        hand = ::Poker::High::Hand.new(cards)
+        hand = ::Poker::Hand::High.new(cards)
         detect(hand)
       end
 
@@ -51,11 +58,14 @@ module Poker
         high?(Card[cards])
       end
 
-      def detect(hand, ranks = [:straight_flush?, :three_kind?, :two_pair?, :one_pair?, :high_card?])
+      def detect(hand, ranks = [:straight_flush, :three_kind, :two_pair, :one_pair, :high_card])
         result = false
         ranks.each { |rank|
-          result = send(rank, hand)
-          break if result
+          result = send("#{rank}?", hand)
+          if result
+            result.rank ||= rank
+            break
+          end
         }
         return result
       end
@@ -63,18 +73,17 @@ module Poker
       def straight_flush?(hand)
         flush = flush?(hand)
         if flush
-          suited = flush.suits.values.select { |g| g.size >= 5 }.first
-          if straight = straight?(Hand.new(suited))
+          suited = flush.suited.select { |g| g.size >= 5 }.first
+          if straight = straight?(::Poker::Hand::High.new(suited))
             hand.tap { |h|
-              h.rank = :straight_flush
               h.value = straight.value
               h.high = straight.high
             }
           else
-            detect(hand, [:four_kind?, :full_house?]) || flush
+            detect(hand, [:four_kind, :full_house]) || flush
           end
         else
-          detect(hand, [:four_kind?, :full_house?, :straight?])
+          detect(hand, [:four_kind, :full_house, :straight])
         end
       end
 
@@ -82,7 +91,6 @@ module Poker
         suited = hand.suited.select { |g| g.size >= 5 }
         return false unless suited.size == 1
         hand.tap { |h|
-          h.rank = :flush
           h.value = suited.first.sort.reverse.slice(0, 5)
         }
       end
@@ -92,7 +100,6 @@ module Poker
         return false unless gaps.size == 1
         row = gaps.first
         hand.tap { |h|
-          h.rank = :straight
           h.value = row.slice(0, 5)
           h.high = [row.first]
         }
@@ -102,7 +109,6 @@ module Poker
         quad = hand.paired(4).first
         return false unless quad
         hand.tap { |h|
-          h.rank = :four_kind
           h.value = quad
           h.kickers!
         }
@@ -112,7 +118,6 @@ module Poker
         sets = hand.paired(3)
         return false unless sets.size == 1
         hand.tap { |h|
-          h.rank = :three_kind
           h.value = sets.first
           h.kickers!
         }
@@ -132,7 +137,6 @@ module Poker
         end
 
         hand.tap { |h|
-          h.rank = :full_house
           h.value = major + minor
           h.high = [major.max, minor.max]
         }
@@ -145,7 +149,6 @@ module Poker
 
         major, minor, *_ = pairs.sort_by(&:max).reverse
         hand.tap { |h|
-          h.rank = :two_pair
           h.value = major + minor
           h.high = [major.max, minor.max]
           h.kickers!
@@ -159,7 +162,6 @@ module Poker
 
         pair = pairs.first
         hand.tap { |h|
-          h.rank = :one_pair
           h.value = pair
           h.kickers!
         }
@@ -167,7 +169,6 @@ module Poker
 
       def high_card?(hand)
         hand.tap { |h|
-          h.rank = :high_card
           h.value = [h.cards.max]
           h.kickers!
         }

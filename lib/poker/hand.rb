@@ -1,25 +1,22 @@
 module Poker
-  autoload :High, 'poker/hand/high'
-  autoload :Badugi, 'poker/hand/badugi'
-  autoload :Low, 'poker/hand/low'
-  
   class Hand
+    autoload :High, 'poker/hand/high'
+    autoload :Badugi, 'poker/hand/badugi'
+    autoload :Low, 'poker/hand/low'
+    
     include Comparable
     
     attr_reader :cards, :kinds, :suits
     attr_accessor :rank, :high, :value, :kickers
     
-    def ace_low!
-      @cards.map!(&:low!)
-      @kinds = @suits = nil
-    end
-    
-    def qualifier!(q)
-      @cards.select! { |card| card <= q }
-    end
-    
-    def initialize(cards)
-      @cards = cards
+    def initialize(cards, options = {})
+      raise ArgumentError.new('no cards') unless cards.present?
+      cards = cards.map { |card|
+          card.low = true; card
+        } if options[:low]
+      @cards = options[:qualifier] ? cards.select { |card|
+          card <= options[:qualifier]
+        } : cards
       @kinds = @suits = nil
       @kickers = []
       @high = @value = @rank = nil
@@ -29,12 +26,12 @@ module Poker
       @kinds ||= @cards.group_by(&:kind)
     end
     
-    def suits
-      @suits ||= @cards.group_by(&:suit)
-    end
-    
     def paired(n = nil)
       kinds.values.select { |g| n ? g.size == n : g.size > 1 }
+    end
+    
+    def suits
+      @suits ||= @cards.group_by(&:suit)
     end
     
     def suited(n = nil)
@@ -70,8 +67,8 @@ module Poker
       @high ||= []
     end
 
-    def ==(b)
-      @rank == b.rank && @value == b.value && @kickers == b.kickers
+    def index
+      self.class.const_get(:RANKS).index(@rank.to_s)
     end
 
     def ==(b)
@@ -79,7 +76,7 @@ module Poker
     end
 
     def inspect
-      "<#{@rank}:#{@cards.inspect} high=#{@high.inspect} value=#{@value.inspect} kickers=#{@kickers.inspect}>"
+      "<#{@rank}:#{@cards.inspect} high=#{high.inspect} value=#{@value.inspect} kickers=#{@kickers.inspect}>"
     end
   end
 end
