@@ -4,6 +4,8 @@ module Poker
       RANKS = %w(high_card one_pair two_pair three_kind straight flush full_house four_kind straight_flush)
 
       def <=>(b)
+        return 1 unless RANKS.include?(b.rank)
+        
         return self.index <=> b.index unless self.index == b.index
         
         return self.high <=> b.high unless self.high == b.high
