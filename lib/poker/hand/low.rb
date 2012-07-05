@@ -2,14 +2,15 @@ module Poker
   module Low
     class Hand < ::Poker::Hand
       def <=>(b)
-        return 1 unless b.rank == :low
+        return 1 unless b.respond_to?(:rank) && b.rank == :low
+        
         return b.value.reverse <=> self.value.reverse unless self.value == b.value
 
         return 0
       end
 
       def ==(b)
-        self.value == b.value
+        b.is_a?(Hand) && self.value == b.value
       end
     end
 

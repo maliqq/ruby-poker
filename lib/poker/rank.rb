@@ -21,13 +21,13 @@ module Poker
     end
     
     def result(hand)
-      return :lose unless winners.include?(hand)
+      return :lose unless hand && winners.include?(hand)
       winners.size == 1 ? :wins : :ties
     end
 
     def winners
       @winners ||= begin
-        sorted = self.sort.reverse.select { |h| h.rank.present? }
+        sorted = self.compact.sort.reverse
         sorted.take_while { |hand| hand == sorted.first }
       end
     end
