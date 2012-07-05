@@ -21,31 +21,62 @@ module Poker
     end
 
     class << self
-      def ace_five?(cards)
-        hand = ::Poker::Low::Hand.new(Card.low(cards))
-        hand.rank = :low
-        hand.value = hand.kinds.values.map(&:first).sort.slice(0, 5)
+      def row_low?(str, ace_low = true, qualifier = nil)
+        hand = ::Poker::Low::Hand.new(Card[str])
+        hand.ace_low! if ace_low
+        hand.qualifier!(qualifier) if qualifier
+        
+        value = hand.kinds.values.map(&:first)
+        value = value.select { |card| card <= qualifier } if qualifier
+        
+        hand.value = value.sort.slice(0, 5)
+        hand.rank = :low if hand.value.size == 5
         #if hand.value.size < 5
         #  paired = (hand.cards - hand.value).sort
         #  while hand.value.size < 5
         #    hand.value << paired.shift
         #  end 
         #end
+        
         hand.high = [hand.value.max] if hand.value.size == 5
         hand
       end
+      
+      alias :ace_five? row_low?
+      
+      def ace_five_with_eight_qualifier?(str)
+        straight_low?(str, true, '8')
+      end
+      
+      def ace_five_with_nine_qualifier?(str)
+        straight_low?(str, true, '9')
+      end
+      
+      def deuce_six?(str)
+        straight_low?(str, false)
+      end
 
-      def deuce_seven?(str)
+      def gap_low?(str, ace_low = false)
         cards = Card[str]
         raise ArgumentError.new('only 5 cards allowed for 2-7') unless cards.size == 5
+        
         hand = ::Poker::High.detect(::Poker::Low::High.new(cards))
+        hand.ace_low! if ace_low
+        
         if hand.rank == :high_card
           hand = ::Poker::Low::Hand.new(cards)
           hand.rank = :low
           hand.value = hand.kinds.values.map(&:first).sort.slice(0, 5)
           hand.high = [hand.value.max] if hand.value.size == 5
         end
+        
         hand
+      end
+      
+      alias :deuce_seven? gap_low?
+      
+      def ace_six?(str)
+        gap_low?(str, true)
       end
     end
   end

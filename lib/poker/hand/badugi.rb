@@ -25,12 +25,15 @@ module Poker
     class << self
       def badugi?(cards)
         raise ArgumentError.new('exactly 4 cards allowed for badugi') unless cards.size == 4
+        
         hand = ::Poker::Badugi::Hand.new(cards)
+        hand.ace_low!
+        
         detect(hand, [:one?, :four?, :three?, :two?])
       end
 
       def [](cards)
-        badugi?(Card.low(cards))
+        badugi?(Card[cards])
       end
 
       def detect(hand, ranks)
@@ -44,6 +47,7 @@ module Poker
 
       def four?(hand)
         return false unless hand.kinds.size == 4 && hand.suits.size == 4
+        
         hand.tap { |h|
           h.rank = :four_card
           h.value = hand.cards.sort

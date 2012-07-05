@@ -9,6 +9,14 @@ module Poker
     attr_reader :cards, :kinds, :suits
     attr_accessor :rank, :high, :value, :kickers
     
+    def ace_low!
+      @cards.map!(&:low!)
+    end
+    
+    def qualifier!(q)
+      @cards.select! { |card| card <= q }
+    end
+    
     def initialize(cards)
       @cards = cards
       @kinds = @cards.group_by(&:kind)

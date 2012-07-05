@@ -9,7 +9,6 @@ module Poker
     include Comparable
     
     attr_reader :kind, :suit
-    attr_accessor :low
     
     ACE = 12
     SUITS = %w(s c h d)
@@ -18,6 +17,12 @@ module Poker
     def initialize(kind, suit)
       @kind = kind
       @suit = suit
+      @low = false
+    end
+    
+    def low!
+      @low = true
+      self
     end
     
     class << self
@@ -42,10 +47,7 @@ module Poker
       alias :[] parse
       
       def low(cards)
-        parse(cards).map { |card|
-          card.low = true
-          card
-        }
+        parse(cards).map(&:low!)
       end
       
       def deck
@@ -59,7 +61,7 @@ module Poker
     
     def index
       idx = KINDS.index(@kind)
-      low ? (idx == ACE ? 0 : idx + 1) : idx
+      @low ? (idx == ACE ? 0 : idx + 1) : idx
     end
     
     CHARS =  %w(♠ ♥ ♦ ♣)
