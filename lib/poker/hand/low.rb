@@ -26,6 +26,19 @@ module Poker
         hand.high = [hand.value.max] if hand.value.size == 5
         hand
       end
+
+      def deuce_seven(str)
+        cards = Card[str]
+        raise ArgumentError.new('only 5 cards allowed for 2-7') unless cards.size == 5
+        hand = ::Poker::High.detect(cards)
+        if hand.rank == :high_card
+          hand = ::Poker::Low::Hand.new(cards)
+          hand.rank = :low
+          hand.value = hand.kinds.values.map(&:first).sort.slice(0, 5)
+          hand.high = [hand.value.max] if hand.value.size == 5
+        end
+        hand
+      end
     end
   end
 end
