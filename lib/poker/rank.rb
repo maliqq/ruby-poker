@@ -4,7 +4,7 @@ module Poker
   class Rank < Delegator
     class << self
       def [](*hands)
-        new(hands)
+        new(hands.size == 1 ? hands.first : hands)
       end
     end
 
