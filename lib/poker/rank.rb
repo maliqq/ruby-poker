@@ -19,6 +19,11 @@ module Poker
     def __getobj__
       @hands
     end
+    
+    def result(hand)
+      return :lose unless winners.include?(hand)
+      winners.size == 1 ? :wins : :ties
+    end
 
     def winners
       @winners ||= begin
