@@ -42,4 +42,14 @@ describe Hand::High do
   example 'comparing kickers' do
     High['AhAdAcAsKd'].should > High['AhAdAcAsQd']
   end
+
+  example 'comparing' do
+    board = Card['3s8s8c7h2c']
+    hands = [
+      Hand::High[Card['9s9h'] + board],
+      Hand::High[Card['9s8s'] + board],
+      Hand::High[Card['8s3s'] + board]
+    ]
+    hands.max.rank.should == :full_house
+  end
 end
