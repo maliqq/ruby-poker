@@ -11,6 +11,7 @@ module Poker
     
     def ace_low!
       @cards.map!(&:low!)
+      @kinds = @suits = nil
     end
     
     def qualifier!(q)
@@ -19,18 +20,25 @@ module Poker
     
     def initialize(cards)
       @cards = cards
-      @kinds = @cards.group_by(&:kind)
-      @suits = @cards.group_by(&:suit)
+      @kinds = @suits = nil
       @kickers = []
       @high = @value = @rank = nil
     end
     
+    def kinds
+      @kinds ||= @cards.group_by(&:kind)
+    end
+    
+    def suits
+      @suits ||= @cards.group_by(&:suit)
+    end
+    
     def paired(n = nil)
-      @kinds.values.select { |g| n ? g.size == n : g.size > 1 }
+      kinds.values.select { |g| n ? g.size == n : g.size > 1 }
     end
     
     def suited(n = nil)
-      @suits.values.select { |g| n ? g.size == n : g.size > 1 }
+      suits.values.select { |g| n ? g.size == n : g.size > 1 }
     end
 
     def gaps

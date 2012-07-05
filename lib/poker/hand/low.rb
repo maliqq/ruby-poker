@@ -23,13 +23,11 @@ module Poker
     class << self
       def row_low?(str, ace_low = true, qualifier = nil)
         hand = ::Poker::Low::Hand.new(Card[str])
+        
         hand.ace_low! if ace_low
         hand.qualifier!(qualifier) if qualifier
         
-        value = hand.kinds.values.map(&:first)
-        value = value.select { |card| card <= qualifier } if qualifier
-        
-        hand.value = value.sort.slice(0, 5)
+        hand.value = hand.kinds.values.map(&:first).sort.slice(0, 5)
         
         if hand.value.size == 5
           hand.rank = :low

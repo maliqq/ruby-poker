@@ -8,5 +8,8 @@ describe Low do
     Low.deuce_seven?('2s3s4s5s7d').value.should == %w(2 3 4 5 7)
     Low.deuce_seven?('2s3s4s5s7d').should be > Low.deuce_seven?('2s3s4s5s7s')
     Low.deuce_seven?('2s3s4s5s7s').should be > Low.deuce_seven?('3s4s5s7s8s')
+    
+    Low.ace_five_with_eight_qualifier?('2s3s4s7s9c').rank.should be_nil
+    Low.ace_five_with_eight_qualifier?('2s3s4s7s8c').rank.should == :low
   end
 end

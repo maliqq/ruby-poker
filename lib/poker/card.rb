@@ -59,8 +59,8 @@ module Poker
       end
     end
     
-    def index
-      idx = KINDS.index(@kind)
+    def index(kind = @kind)
+      idx = KINDS.index(kind)
       @low ? (idx == ACE ? 0 : idx + 1) : idx
     end
     
@@ -83,7 +83,7 @@ module Poker
     end
     
     def <=> (b)
-      b.is_a?(Card) ? self.index <=> b.index : (KINDS.include?(b) ? self.index <=> KINDS.index(b) : 1)
+      b.is_a?(Card) ? self.index <=> b.index : (KINDS.include?(b) ? self.index <=> self.index(b) : 1)
     end
     
     def to_i
