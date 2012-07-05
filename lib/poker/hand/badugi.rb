@@ -6,7 +6,7 @@ module Poker
       def <=>(b)
         return self.index <=> b.index unless self.index == b.index
         
-        return self.high <=> b.high unless self.high == b.high
+        return b.high <=> self.high unless self.high == b.high
         
         return b.value.reverse <=> self.value.reverse unless self.value == b.value
 
