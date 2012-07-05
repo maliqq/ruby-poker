@@ -21,7 +21,7 @@ module Poker
     end
 
     class << self
-      def ace_five(cards)
+      def ace_five?(cards)
         hand = ::Poker::Low::Hand.new(Card.low(cards))
         hand.rank = :low
         hand.value = hand.kinds.values.map(&:first).sort.slice(0, 5)
@@ -35,10 +35,10 @@ module Poker
         hand
       end
 
-      def deuce_seven(str)
+      def deuce_seven?(str)
         cards = Card[str]
         raise ArgumentError.new('only 5 cards allowed for 2-7') unless cards.size == 5
-        hand = ::Poker::High.detect_high(::Poker::Low::High.new(cards))
+        hand = ::Poker::High.detect(::Poker::Low::High.new(cards))
         if hand.rank == :high_card
           hand = ::Poker::Low::Hand.new(cards)
           hand.rank = :low

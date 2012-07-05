@@ -23,17 +23,17 @@ module Poker
     end
     
     class << self
-      def detect(cards)
+      def badugi?(cards)
         raise ArgumentError.new('exactly 4 cards allowed for badugi') unless cards.size == 4
         hand = ::Poker::Badugi::Hand.new(cards)
-        detect_badugi(hand, [:one?, :four?, :three?, :two?])
+        detect(hand, [:one?, :four?, :three?, :two?])
       end
 
       def [](cards)
-        detect(Card.low(cards))
+        badugi?(Card.low(cards))
       end
 
-      def detect_badugi(hand, ranks)
+      def detect(hand, ranks)
         result = false
         ranks.each { |rank|
           result = send(rank, hand)
