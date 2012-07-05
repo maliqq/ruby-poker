@@ -59,7 +59,7 @@ module Poker
     end
 
     def ==(b)
-      self.index == b.index && self.value == b.value
+      self.rank == b.rank && self.value == b.value
     end
 
     def inspect
