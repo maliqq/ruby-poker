@@ -14,6 +14,10 @@ module Poker
 
         return 0
       end
+      
+      def high
+        @high ||= [@value.first]
+      end
 
       def ==(b)
         if super(b)

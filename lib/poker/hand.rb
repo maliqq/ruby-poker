@@ -51,7 +51,7 @@ module Poker
     end
     
     def high
-      @high ||= [@value.first]
+      @high ||= []
     end
 
     def ==(b)
