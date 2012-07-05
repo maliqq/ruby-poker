@@ -30,16 +30,19 @@ module Poker
         value = value.select { |card| card <= qualifier } if qualifier
         
         hand.value = value.sort.slice(0, 5)
-        hand.rank = :low if hand.value.size == 5
+        
+        if hand.value.size == 5
+          hand.rank = :low
+          hand.high = [hand.value.max]
+        end
+        
+        hand
         #if hand.value.size < 5
         #  paired = (hand.cards - hand.value).sort
         #  while hand.value.size < 5
         #    hand.value << paired.shift
         #  end 
         #end
-        
-        hand.high = [hand.value.max] if hand.value.size == 5
-        hand
       end
       
       alias :ace_five? row_low?

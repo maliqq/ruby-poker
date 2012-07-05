@@ -22,7 +22,7 @@ module Poker
 
     def winners
       @winners ||= begin
-        sorted = self.sort.reverse
+        sorted = self.sort.reverse.select { |h| h.rank.present? }
         sorted.take_while { |hand| hand == sorted.first }
       end
     end
