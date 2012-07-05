@@ -44,14 +44,14 @@ module Poker
       def detect(cards)
         raise ArgumentError.new('7 or less cards allowed for high') unless cards.size <= 7
         hand = ::Poker::High::Hand.new(cards)
-        detect_high(hand, [:straight_flush?, :three_kind?, :two_pair?, :one_pair?, :high_card?])
+        detect_high(hand)
       end
 
       def [](cards)
         detect(Card[cards])
       end
 
-      def detect_high(hand, ranks)
+      def detect_high(hand, ranks = [:straight_flush?, :three_kind?, :two_pair?, :one_pair?, :high_card?])
         result = false
         ranks.each { |rank|
           result = send(rank, hand)

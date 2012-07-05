@@ -2,7 +2,7 @@ module Poker
   module Low
     class Hand < ::Poker::Hand
       def <=>(b)
-        return -1 unless b.rank == :low
+        return 1 unless b.rank == :low
         return b.value.reverse <=> self.value.reverse unless self.value == b.value
 
         return 0
@@ -10,6 +10,13 @@ module Poker
 
       def ==(b)
         self.value == b.value
+      end
+    end
+
+    class High < ::Poker::High::Hand
+      def <=>(b)
+        result = super(b)
+        result == -1 ? 1 : (result == 1 ? -1 : 0)
       end
     end
 
@@ -31,7 +38,7 @@ module Poker
       def deuce_seven(str)
         cards = Card[str]
         raise ArgumentError.new('only 5 cards allowed for 2-7') unless cards.size == 5
-        hand = ::Poker::High.detect(cards)
+        hand = ::Poker::High.detect_high(::Poker::Low::High.new(cards))
         if hand.rank == :high_card
           hand = ::Poker::Low::Hand.new(cards)
           hand.rank = :low
