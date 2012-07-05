@@ -83,7 +83,7 @@ module Poker
     end
     
     def <=> (b)
-      b.respond_to?(:index) ? self.index <=> b.index : 1
+      b.respond_to?(:index) ? self.index <=> b.index : (KINDS.include?(b) ? self.index <=> KINDS.index(b) : 1)
     end
     
     def to_i
