@@ -80,6 +80,7 @@ module Poker
               h.high = straight.high
             }
           else
+            flush.rank = :flush
             detect(hand, [:four_kind, :full_house]) || flush
           end
         else

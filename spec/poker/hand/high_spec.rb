@@ -23,8 +23,9 @@ describe Hand::High do
     Hand::High['AhAdAcKhKd'].should > Hand::High['KhKdKcQhQd']
   end
 
-  example 'flash' do
+  example 'flush' do
     Hand::High['AdKdJdTd9d7d'].should == Hand::High['AsKsJsTs9s7s']
+    Hand::High['2s7sKs7hQc9s8s'].rank.should == :flush
   end
 
   example 'wheel straight' do
