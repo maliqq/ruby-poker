@@ -3,9 +3,9 @@ require 'spec_helper'
 describe Hand do
   example 'new' do
     h = Hand.new(Card['As7s8s9s'])
-    h.high.should be_empty
-    h.kickers.should be_empty
-    h.value.should be_nil
+    h.high_cards.should be_empty
+    h.kicker_cards.should be_empty
+    h.value_cards.should be_nil
     h.rank.should be_nil
   end
 
