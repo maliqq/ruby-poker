@@ -1,6 +1,6 @@
 module Poker
   class Shoe
-    attr_reader :hands_high, :hands_low, :holes
+    attr_reader :hands_high, :hands_low, :holes, :board
 
     def initialize(cards = Card.deck.shuffle)
       @deck = cards
