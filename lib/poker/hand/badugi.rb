@@ -3,33 +3,37 @@ module Poker
     RANKS = %w(one_card two_card three_card four_card)
 
     def <=>(b)
-      return self.index <=> b.index unless self.index == b.index
-      
-      return b.high <=> self.high unless self.high == b.high
-      
-      return b.value.reverse <=> self.value.reverse unless self.value == b.value
-
-      return 0
+      compare b, [:rank_index, :high_cards, :value_cards]
     end
 
-    def high
+    def compare_high_cards(high)
+      high <=> self.high_cards
+    end
+
+    def compare_value_cards(value)
+      value.reverse <=> self.value_cards.reverse
+    end
+
+    def high_cards
       @high ||= [@value.max]
     end
     
     class << self
       def badugi?(cards)
-        raise ArgumentError.new('exactly 4 cards allowed for badugi') unless cards.size == 4
+        unless cards.size == 4
+          raise ArgumentError.new("exactly 4 cards allowed for badugi; got: #{cards.size}")
+        end
+
+        hand = new(cards, low: true)
         
-        hand = ::Poker::Hand::Badugi.new(cards, low: true)
-        
-        detect(hand, [:one?, :four?, :three?, :two?])
+        detect(hand)
       end
 
       def [](cards)
         badugi?(Card[cards])
       end
 
-      def detect(hand, ranks)
+      def detect(hand, ranks = [:one?, :four?, :three?, :two?])
         result = false
         ranks.each { |rank|
           result = send(rank, hand)

@@ -5,31 +5,14 @@ module Poker
     def <=>(b)
       return 1 unless b.rank
       return -1 unless self.rank
-      
-      [:index, :high, :value, :kickers].each { |meth|
-        return send("compare_#{meth}", b.send(meth)) unless self.send(meth) == b.send(meth)
-      }
-
-      return 0
+      compare b, [:rank_index, :high_cards, :value_cards, :kicker_cards]
     end
 
-    def compare_index(index)
-      self.index <=> index
+    def compare_kicker_cards(kickers)
+      self.kicker_cards <=> kickers
     end
 
-    def compare_high(high)
-      self.high <=> high
-    end
-
-    def compare_value(value)
-      self.value <=> value
-    end
-
-    def compare_kickers(kickers)
-      self.kickers <=> kickers
-    end
-
-    def high
+    def high_cards
       @high ||= [@value.first]
     end
 
@@ -50,7 +33,7 @@ module Poker
     class << self
       def high?(cards)
         raise ArgumentError.new('7 or less cards allowed for high') unless cards.size <= 7
-        hand = ::Poker::Hand::High.new(cards)
+        hand = new(cards)
         detect(hand)
       end
 
@@ -74,7 +57,7 @@ module Poker
         flush = flush?(hand)
         if flush
           suited = flush.suited.select { |g| g.size >= 5 }.first
-          if straight = straight?(::Poker::Hand::High.new(suited))
+          if straight = straight?(new(suited))
             hand.tap { |h|
               h.value = straight.value
               h.high = straight.high
