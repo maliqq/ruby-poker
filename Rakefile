@@ -9,18 +9,10 @@ RSpec::Core::RakeTask.new(:spec) do |spec|
   spec.rspec_opts = ['--color']
 end
 
-task default: :spec
+require "cucumber/rake/task"
 
-task :badugi do
-  $:.unshift(File.dirname(__FILE__) + '/lib')
-  require 'poker'
-  
-  include Poker
-  
-  hands = Card.deck.combination(4).map { |cards|
-        Hand::Badugi[cards]
-      }.sort
-  hands.each { |h|
-    puts "#{h.cards} | #{h.value.inspect}"
-  }
+Cucumber::Rake::Task.new(:features) do |task|
+  task.cucumber_opts = ["features --format pretty"]
 end
+
+task default: :spec

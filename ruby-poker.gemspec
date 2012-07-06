@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'activesupport'
   s.add_development_dependency 'rspec'
   s.add_development_dependency 'autowatchr'
+  s.add_development_dependency 'cucumber'
   s.require_paths = ['lib']
   s.files = `git ls-files`.split("\n")
   s.test_files = `git ls-files -- spec/*`.split("\n")
