@@ -27,6 +27,16 @@ describe Hand::High do
     Hand::High['AdKdJdTd9d7d'].should == Hand::High['AsKsJsTs9s7s']
     Hand::High['2s7sKs7hQc9s8s'].rank.should == :flush
   end
+  
+  example 'straight' do
+    Hand::High['Js9s9c7h6d'].rank.should_not == :straight
+    Hand::High['5s4d3d3s2s'].rank.should_not == :straight
+    Card['3s2s5hKc'].combination(2).collect do |hole|
+      Card['Th4dJc5s3d'].combination(3).collect do |board|
+        Hand::High[hole + board]
+      end
+    end.flatten.max.rank.should_not == :straight
+  end
 
   example 'wheel straight' do
     Hand::High['Ad2c3d4d5d'].rank.should == :straight
