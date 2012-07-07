@@ -15,4 +15,5 @@ Cucumber::Rake::Task.new(:features) do |task|
   task.cucumber_opts = ["features --format pretty"]
 end
 
-task default: :spec
+task default: [:spec, :features]
+
