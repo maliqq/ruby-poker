@@ -38,6 +38,32 @@ Feature: Badugi hands
     Then high_cards should be Q
     Then value_cards should be TJQ
 
+  Scenario: Two card badugi
+    Given hand As2s3c4c
+    Then rank should be two_card
+    Then high_cards should be 3
+    Then value_cards should be A3
+
+    Given hand TsJsQcKc
+    Then rank should be two_card
+    Then high_cards should be Q
+    Then value_cards should be TQ
+
+    Given hand As2d2c3s
+    Then rank should be two_card
+    Then high_cards should be 2
+    Then value_cards should be A2
+
+    Given hand As2s2d3d
+    Then rank should be two_card
+    Then high_cards should be 2
+    Then value_cards should be A2
+
+    Given hand As2s3d3c
+    Then rank should be two_card
+    Then high_cards should be 3
+    Then value_cards should be A3
+
   Scenario: One card badugi
     Given hand AsAhAdAc
     Then rank should be one_card
