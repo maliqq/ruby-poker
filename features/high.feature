@@ -1,6 +1,7 @@
 Feature: High hands
   Background:
     Given ranking high
+    
   Scenario: Straight flush
     Given hand AsKsQsJsTs
     Then rank should be straight_flush

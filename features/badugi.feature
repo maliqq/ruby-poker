@@ -1,6 +1,7 @@
 Feature: Badugi hands
   Background:
     Given ranking badugi
+
   Scenario: Four card badugi
     Given hand As2h3d4c
     Then rank should be four_card
@@ -63,6 +64,16 @@ Feature: Badugi hands
     Then rank should be two_card
     And high_cards should be 3
     And value_cards should be A3
+
+    Given hand QsQdQcKd
+    Then rank should be two_card
+    And high_cards should be K
+    And value_cards should be QK
+
+    Given hand As2c3s3c
+    Then rank should be two_card
+    And high_cards should be 2
+    And value_cards should be A2
 
   Scenario: One card badugi
     Given hand AsAhAdAc
