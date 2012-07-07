@@ -6,7 +6,7 @@ Then /^rank should be (.*)$/ do |rank|
   @hand.rank.should == rank.to_sym
 end
 
-Then /^(.*_cards) are empty$/ do |method|
+Then /^no (.*_cards)$/ do |method|
   @hand.send(method).should be_empty
 end
 

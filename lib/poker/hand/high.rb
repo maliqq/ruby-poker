@@ -115,6 +115,7 @@ module Poker
 
         if sets.size >= 2
           major, minor, *_ = sets.sort_by(&:max).reverse
+          minor = minor.slice(0, 2)
         else
           major = sets.first
           minor = pairs.sort_by(&:max).last
